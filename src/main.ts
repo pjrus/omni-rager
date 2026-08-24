@@ -6,6 +6,8 @@ import { RenderPass } from "three/addons/postprocessing/RenderPass.js";
 import { UnrealBloomPass } from "three/addons/postprocessing/UnrealBloomPass.js";
 import "./style.css";
 
+const assetUrl = (path: string) => `${import.meta.env.BASE_URL}${path}`;
+
 type Project = {
   name: string;
   category: string;
@@ -22,7 +24,7 @@ const projects: Project[] = [
     description: "A spatial retail world where products respond to light, proximity and gesture.",
     tags: ["THREE.JS", "WEBGL", "GSAP"],
     link: "https://example.com/?project=arcfield",
-    symbol: "/project-symbols/arcfield.svg",
+    symbol: assetUrl("project-symbols/arcfield.svg"),
   },
   {
     name: "Signal / Noise",
@@ -30,7 +32,7 @@ const projects: Project[] = [
     description: "Live environmental data translated into a calm, explorable audiovisual instrument.",
     tags: ["REACT", "D3", "WEB AUDIO"],
     link: "https://example.com/?project=signal-noise",
-    symbol: "/project-symbols/signal-noise.svg",
+    symbol: assetUrl("project-symbols/signal-noise.svg"),
   },
   {
     name: "Nocturne",
@@ -38,7 +40,7 @@ const projects: Project[] = [
     description: "A performance-led identity system for an independent electronic music imprint.",
     tags: ["CREATIVE DEV", "MOTION", "GLSL"],
     link: "https://example.com/?project=nocturne",
-    symbol: "/project-symbols/nocturne.svg",
+    symbol: assetUrl("project-symbols/nocturne.svg"),
   },
   {
     name: "Assembly",
@@ -46,7 +48,7 @@ const projects: Project[] = [
     description: "A modular collaboration space that turns complex production work into a shared timeline.",
     tags: ["TYPESCRIPT", "DESIGN SYSTEM", "API"],
     link: "https://example.com/?project=assembly",
-    symbol: "/project-symbols/assembly.svg",
+    symbol: assetUrl("project-symbols/assembly.svg"),
   },
   {
     name: "Afterimage",
@@ -54,7 +56,7 @@ const projects: Project[] = [
     description: "An atmospheric exhibition archive designed for wandering, recollection and discovery.",
     tags: ["NEXT.JS", "3D", "CMS"],
     link: "https://example.com/?project=afterimage",
-    symbol: "/project-symbols/afterimage.svg",
+    symbol: assetUrl("project-symbols/afterimage.svg"),
   },
 ];
 
@@ -96,7 +98,7 @@ class SoundSystem {
 
   constructor() {
     Object.keys(this.levels).forEach((name) => {
-      const audio = new Audio(`/audio/${name}.mp3`);
+      const audio = new Audio(assetUrl(`audio/${name}.mp3`));
       audio.preload = name === "core-ready" || name === "transform" ? "auto" : "metadata";
       audio.volume = this.levels[name];
       this.sounds[name] = audio;
