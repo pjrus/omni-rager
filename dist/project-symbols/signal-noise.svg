@@ -1,0 +1,4 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="256" height="256" viewBox="0 0 256 256" role="img" aria-labelledby="title">
+  <title id="title">Signal waveform</title>
+  <path fill="#070908" d="M22 111h30v34H22v-34Zm46-43h30v120H68V68Zm46 18h30v84h-30V86Zm46-54h30v192h-30V32Zm46 66h30v60h-30V98Z"/>
+</svg>

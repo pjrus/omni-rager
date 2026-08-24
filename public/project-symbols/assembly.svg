@@ -1,0 +1,4 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="256" height="256" viewBox="0 0 256 256" role="img" aria-labelledby="title">
+  <title id="title">Assembly connected modules</title>
+  <path fill="#070908" d="M27 27h74v74H27V27Zm128 0h74v74h-74V27ZM27 155h74v74H27v-74Zm128 0h74v74h-74v-74Zm61-30v18H40v-18h176ZM116 40h24v176h-24V40Z"/>
+</svg>
