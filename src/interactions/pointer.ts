@@ -1,3 +1,7 @@
+// The pointer/drag/dial interaction state machine. Distinguishes a tap on the device core
+// (engage), a drag on the dial (rotate to select), a long-press-then-drag on the housing
+// (reposition the device), and wheel scroll (cycle projects) — all coordinated through
+// `state.interactionMode`.
 import * as THREE from "three";
 import { SoundSystem } from "../audio/SoundSystem";
 import { canvas } from "../dom/elements";
@@ -11,6 +15,15 @@ import { AppState } from "../state";
 import { engageProject, moveProject, selectFromRotation } from "../animations/projectFlow";
 import { revealPortfolio, setDragFeedback } from "../ui/interface";
 
+/**
+ * Handles the start of any pointer interaction with the device. A press on the housing
+ * (not the dial or drag handle) doesn't commit to a gesture immediately: it enters
+ * "pending" and starts `longPressTimer`. If the pointer is released quickly with little
+ * movement, `finishPointerInteraction` treats it as a tap that engages the project. If the
+ * timer fires first (or movement is small enough that a hold is plausible), the mode
+ * promotes to "drag" and the device becomes repositionable. This is what lets the same
+ * gesture area serve both "tap to open" and "press-and-hold to move".
+ */
 export function onPointerDown(event: PointerEvent, state: AppState) {
   if (
     state.omni.busy ||
@@ -71,6 +84,10 @@ export function onPointerMove(event: PointerEvent, state: AppState) {
 
   if (state.interactionMode === "pending") {
     if (state.pointerMoved > state.tapMovementLimit) {
+      // Moved too far during the pending window to still count as a tap, but the long
+      // press hasn't fired yet either — mark "cancelled" (distinct from "idle") so that
+      // when the pointer is released, `finishPointerInteraction` doesn't mistake this for
+      // a completed tap and engage the project.
       clearLongPress(state);
       state.interactionMode = "cancelled";
       setDragFeedback(state, "idle");
@@ -113,6 +130,7 @@ export function onPointerMove(event: PointerEvent, state: AppState) {
   revealPortfolio(state);
 }
 
+/** Resolves whatever gesture was in progress: a completed tap on the core engages the project, a released dial drag flings the selection to the nearest project by velocity, otherwise interaction just resets. */
 function finishPointerInteraction(state: AppState, sounds: SoundSystem, cancelled = false, pointerId?: number) {
   if (state.activePointerId === null || (pointerId !== undefined && pointerId !== state.activePointerId)) return;
 
