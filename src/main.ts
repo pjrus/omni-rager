@@ -1,3 +1,9 @@
+/**
+ * Orchestration entry point. Constructs the shared AppState and SoundSystem,
+ * wires DOM event listeners to the interaction/animation/scene functions
+ * extracted from the original single-file implementation, and kicks off the
+ * Three.js scene.
+ */
 import "./style.css";
 import { SoundSystem } from "./audio/SoundSystem";
 import {
@@ -30,6 +36,11 @@ import { revealPortfolio, updateProjectInterface } from "./ui/interface";
 const state = new AppState();
 const sounds = new SoundSystem();
 
+/**
+ * Boot sequence triggered by the initial user gesture (boot button click).
+ * Unlocks audio (see SoundSystem.unlock) before anything else, since that
+ * gesture is the only point at which the AudioContext is allowed to start.
+ */
 async function startExperience() {
   bootButton.disabled = true;
   systemStatus.textContent = "CHARGING CORE";
