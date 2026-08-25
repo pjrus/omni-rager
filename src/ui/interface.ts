@@ -31,22 +31,25 @@ export function revealPortfolio(state: AppState) {
 export function updateProjectInterface(index: number) {
   const project: Project = projects[index];
   app.classList.add("is-changing");
-  window.setTimeout(() => {
-    numberNode.textContent = String(index + 1).padStart(2, "0");
-    categoryNode.textContent = project.category;
-    titleNode.textContent = project.name;
-    descriptionNode.textContent = project.description;
-    tagsNode.replaceChildren(
-      ...project.tags.map((tag) => {
-        const item = document.createElement("li");
-        item.textContent = tag;
-        return item;
-      }),
-    );
-    projectLink.href = project.link;
-    projectLink.setAttribute("aria-label", `View ${project.name} project`);
-    app.classList.remove("is-changing");
-  }, reducedMotion.matches ? 0 : 170);
+  window.setTimeout(
+    () => {
+      numberNode.textContent = String(index + 1).padStart(2, "0");
+      categoryNode.textContent = project.category;
+      titleNode.textContent = project.name;
+      descriptionNode.textContent = project.description;
+      tagsNode.replaceChildren(
+        ...project.tags.map((tag) => {
+          const item = document.createElement("li");
+          item.textContent = tag;
+          return item;
+        }),
+      );
+      projectLink.href = project.link;
+      projectLink.setAttribute("aria-label", `View ${project.name} project`);
+      app.classList.remove("is-changing");
+    },
+    reducedMotion.matches ? 0 : 170,
+  );
 }
 
 export function setControlsDisabled(disabled: boolean) {
@@ -69,6 +72,10 @@ export function setDragFeedback(state: AppState, dragState: "idle" | "pressing" 
     systemStatus.textContent = "REPOSITIONING";
   } else {
     dragFeedbackLabel.textContent = "Hold to reposition";
-    systemStatus.textContent = state.omni.active ? "PROJECT LINKED" : state.explored ? "SELECTOR READY" : "CORE OFFLINE";
+    systemStatus.textContent = state.omni.active
+      ? "PROJECT LINKED"
+      : state.explored
+        ? "SELECTOR READY"
+        : "CORE OFFLINE";
   }
 }

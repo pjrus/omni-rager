@@ -91,7 +91,12 @@ export class OmniDevice {
     this.root.add(this.dialHit, this.centreHit, this.dragHit);
 
     this.root.traverse((object) => {
-      if (object instanceof THREE.Mesh && object !== this.dialHit && object !== this.centreHit && object !== this.dragHit) {
+      if (
+        object instanceof THREE.Mesh &&
+        object !== this.dialHit &&
+        object !== this.centreHit &&
+        object !== this.dragHit
+      ) {
         object.castShadow = true;
         object.receiveShadow = true;
       }
@@ -125,16 +130,29 @@ export class OmniDevice {
     this.dial.rotation.z = THREE.MathUtils.lerp(this.dial.rotation.z, this.dialTarget, damping);
     this.root.rotation.x = THREE.MathUtils.lerp(this.root.rotation.x, rotationTarget.x, damping);
     this.root.rotation.y = THREE.MathUtils.lerp(this.root.rotation.y, rotationTarget.y, damping);
-    this.root.position.x = THREE.MathUtils.lerp(this.root.position.x, this.positionTarget.x, damping);
-    this.root.position.y = THREE.MathUtils.lerp(this.root.position.y, this.positionTarget.y + bob, damping);
-    this.root.position.z = THREE.MathUtils.lerp(this.root.position.z, this.positionTarget.z, damping);
+    this.root.position.x = THREE.MathUtils.lerp(
+      this.root.position.x,
+      this.positionTarget.x,
+      damping,
+    );
+    this.root.position.y = THREE.MathUtils.lerp(
+      this.root.position.y,
+      this.positionTarget.y + bob,
+      damping,
+    );
+    this.root.position.z = THREE.MathUtils.lerp(
+      this.root.position.z,
+      this.positionTarget.z,
+      damping,
+    );
     this.outerRing.rotation.z += delta * (this.active ? -0.025 : 0);
     this.mechanism.rotation.z += delta * (this.active ? 0.055 : 0);
 
     if (!reducedMotion.matches) {
       const particles = this.root.getObjectByName("particles");
       if (particles) particles.rotation.z -= delta * 0.025;
-      this.energyMaterial.emissiveIntensity = (this.active ? 1.25 : 0.82) + Math.sin(elapsed * 2.4) * 0.1;
+      this.energyMaterial.emissiveIntensity =
+        (this.active ? 1.25 : 0.82) + Math.sin(elapsed * 2.4) * 0.1;
     }
   }
 
@@ -149,6 +167,10 @@ export class OmniDevice {
    * device continues from where it visually is instead of snapping/jumping.
    */
   syncPositionTarget(elapsed: number) {
-    this.positionTarget.set(this.root.position.x, this.root.position.y - this.getBobOffset(elapsed), this.root.position.z);
+    this.positionTarget.set(
+      this.root.position.x,
+      this.root.position.y - this.getBobOffset(elapsed),
+      this.root.position.z,
+    );
   }
 }

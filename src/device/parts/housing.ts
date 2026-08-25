@@ -4,19 +4,28 @@ import { cylinder } from "../geometry";
 import type { DeviceMaterials } from "../materials";
 
 function buildChassis(materials: DeviceMaterials) {
-  const chassis = new THREE.Mesh(new RoundedBoxGeometry(4.58, 5.02, 0.92, 6, 0.28), materials.blackMetal);
+  const chassis = new THREE.Mesh(
+    new RoundedBoxGeometry(4.58, 5.02, 0.92, 6, 0.28),
+    materials.blackMetal,
+  );
   chassis.position.z = -0.68;
   return chassis;
 }
 
 function buildUpperBridge(materials: DeviceMaterials) {
-  const upperBridge = new THREE.Mesh(new RoundedBoxGeometry(4.2, 1.12, 0.72, 5, 0.18), materials.graphite);
+  const upperBridge = new THREE.Mesh(
+    new RoundedBoxGeometry(4.2, 1.12, 0.72, 5, 0.18),
+    materials.graphite,
+  );
   upperBridge.position.set(0, 2.02, -0.22);
   return upperBridge;
 }
 
 function buildLowerBridge(materials: DeviceMaterials) {
-  const lowerBridge = new THREE.Mesh(new RoundedBoxGeometry(4.14, 1.0, 0.74, 5, 0.18), materials.graphite);
+  const lowerBridge = new THREE.Mesh(
+    new RoundedBoxGeometry(4.14, 1.0, 0.74, 5, 0.18),
+    materials.graphite,
+  );
   lowerBridge.position.set(0, -2.04, -0.23);
   return lowerBridge;
 }
@@ -25,17 +34,26 @@ function buildLowerBridge(materials: DeviceMaterials) {
 function buildShoulderPair(materials: DeviceMaterials, direction: -1 | 1) {
   const group = new THREE.Group();
 
-  const upperShoulder = new THREE.Mesh(new RoundedBoxGeometry(1.08, 1.8, 0.94, 4, 0.2), materials.graphite);
+  const upperShoulder = new THREE.Mesh(
+    new RoundedBoxGeometry(1.08, 1.8, 0.94, 4, 0.2),
+    materials.graphite,
+  );
   upperShoulder.position.set(direction * 2.37, 1.12, -0.6);
   upperShoulder.rotation.z = direction * 0.05;
   group.add(upperShoulder);
 
-  const lowerShoulder = new THREE.Mesh(new RoundedBoxGeometry(1.02, 1.72, 0.94, 4, 0.2), materials.gunmetal);
+  const lowerShoulder = new THREE.Mesh(
+    new RoundedBoxGeometry(1.02, 1.72, 0.94, 4, 0.2),
+    materials.gunmetal,
+  );
   lowerShoulder.position.set(direction * 2.36, -1.42, -0.62);
   lowerShoulder.rotation.z = direction * -0.045;
   group.add(lowerShoulder);
 
-  const seam = new THREE.Mesh(new RoundedBoxGeometry(0.12, 2.76, 0.08, 2, 0.035), materials.blackMetal);
+  const seam = new THREE.Mesh(
+    new RoundedBoxGeometry(0.12, 2.76, 0.08, 2, 0.035),
+    materials.blackMetal,
+  );
   seam.position.set(direction * 1.55, -0.72, -0.16);
   group.add(seam);
 
@@ -46,7 +64,10 @@ function buildShoulderPair(materials: DeviceMaterials, direction: -1 | 1) {
 function buildActuatorAssembly(materials: DeviceMaterials) {
   const group = new THREE.Group();
 
-  const actuatorBracket = new THREE.Mesh(new RoundedBoxGeometry(1.42, 0.5, 0.52, 4, 0.12), materials.blackMetal);
+  const actuatorBracket = new THREE.Mesh(
+    new RoundedBoxGeometry(1.42, 0.5, 0.52, 4, 0.12),
+    materials.blackMetal,
+  );
   actuatorBracket.position.set(0, -2.42, -0.02);
   group.add(actuatorBracket);
 
@@ -83,10 +104,26 @@ function buildUpperIndicator(materials: DeviceMaterials) {
 }
 
 const GUARD_PATHS = [
-  [[-1.68, 2.38], [-2.02, 2.42], [-2.22, 2.04]],
-  [[1.68, 2.38], [2.02, 2.42], [2.22, 2.04]],
-  [[-2.22, -1.78], [-2.15, -2.24], [-1.78, -2.42]],
-  [[2.22, -1.78], [2.15, -2.24], [1.78, -2.42]],
+  [
+    [-1.68, 2.38],
+    [-2.02, 2.42],
+    [-2.22, 2.04],
+  ],
+  [
+    [1.68, 2.38],
+    [2.02, 2.42],
+    [2.22, 2.04],
+  ],
+  [
+    [-2.22, -1.78],
+    [-2.15, -2.24],
+    [-1.78, -2.42],
+  ],
+  [
+    [2.22, -1.78],
+    [2.15, -2.24],
+    [1.78, -2.42],
+  ],
 ];
 
 /** The four curved finger guards around the housing's corners. */
@@ -94,7 +131,10 @@ function buildFingerGuards(materials: DeviceMaterials) {
   const group = new THREE.Group();
   GUARD_PATHS.forEach((points) => {
     const curve = new THREE.CatmullRomCurve3(points.map(([x, y]) => new THREE.Vector3(x, y, 0.34)));
-    const guard = new THREE.Mesh(new THREE.TubeGeometry(curve, 22, 0.23, 12, false), materials.bone);
+    const guard = new THREE.Mesh(
+      new THREE.TubeGeometry(curve, 22, 0.23, 12, false),
+      materials.bone,
+    );
     group.add(guard);
   });
   return group;

@@ -30,7 +30,8 @@ export function onPointerDown(event: PointerEvent, state: AppState) {
     state.activePointerId !== null ||
     !event.isPrimary ||
     (event.pointerType === "mouse" && event.button !== 0)
-  ) return;
+  )
+    return;
   const hits = raycastDevice(event, state);
   if (!hits.length) return;
 
@@ -80,7 +81,10 @@ export function onPointerMove(event: PointerEvent, state: AppState) {
   if (event.pointerId !== state.activePointerId || state.omni.busy) return;
 
   const currentPosition = new THREE.Vector2(event.clientX, event.clientY);
-  state.pointerMoved = Math.max(state.pointerMoved, currentPosition.distanceTo(state.pressStartPosition));
+  state.pointerMoved = Math.max(
+    state.pointerMoved,
+    currentPosition.distanceTo(state.pressStartPosition),
+  );
 
   if (state.interactionMode === "pending") {
     if (state.pointerMoved > state.tapMovementLimit) {
@@ -113,7 +117,11 @@ export function onPointerMove(event: PointerEvent, state: AppState) {
   if (state.interactionMode === "rotate") {
     const movement = currentPosition.clone().sub(state.lastPointerPosition);
     state.deviceRotationTarget.y += movement.x * 0.006;
-    state.deviceRotationTarget.x = THREE.MathUtils.clamp(state.deviceRotationTarget.x + movement.y * 0.006, -Math.PI, Math.PI);
+    state.deviceRotationTarget.x = THREE.MathUtils.clamp(
+      state.deviceRotationTarget.x + movement.y * 0.006,
+      -Math.PI,
+      Math.PI,
+    );
     state.lastPointerPosition.set(event.clientX, event.clientY);
     event.preventDefault();
     return;
@@ -131,8 +139,17 @@ export function onPointerMove(event: PointerEvent, state: AppState) {
 }
 
 /** Resolves whatever gesture was in progress: a completed tap on the core engages the project, a released dial drag flings the selection to the nearest project by velocity, otherwise interaction just resets. */
-function finishPointerInteraction(state: AppState, sounds: SoundSystem, cancelled = false, pointerId?: number) {
-  if (state.activePointerId === null || (pointerId !== undefined && pointerId !== state.activePointerId)) return;
+function finishPointerInteraction(
+  state: AppState,
+  sounds: SoundSystem,
+  cancelled = false,
+  pointerId?: number,
+) {
+  if (
+    state.activePointerId === null ||
+    (pointerId !== undefined && pointerId !== state.activePointerId)
+  )
+    return;
 
   const capturedPointerId = state.activePointerId;
   const completedMode = state.interactionMode;
@@ -145,7 +162,12 @@ function finishPointerInteraction(state: AppState, sounds: SoundSystem, cancelle
   setDragFeedback(state, "idle");
   if (canvas.hasPointerCapture(capturedPointerId)) canvas.releasePointerCapture(capturedPointerId);
 
-  if (!cancelled && completedMode === "pending" && completedPressTarget === "centre" && state.pointerMoved <= state.tapMovementLimit) {
+  if (
+    !cancelled &&
+    completedMode === "pending" &&
+    completedPressTarget === "centre" &&
+    state.pointerMoved <= state.tapMovementLimit
+  ) {
     engageProject(state, sounds);
     return;
   }

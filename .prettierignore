@@ -1,0 +1,7 @@
+node_modules
+dist
+output
+.agents
+.claude
+.playwright-cli
+package-lock.json

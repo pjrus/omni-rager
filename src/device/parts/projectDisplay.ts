@@ -37,7 +37,10 @@ function buildDiamondFrame() {
 }
 
 function buildDiamondFace(materials: DeviceMaterials) {
-  const face = new THREE.Mesh(new THREE.ShapeGeometry(createDiamond(0.82, 1.04)), materials.displayEnergy);
+  const face = new THREE.Mesh(
+    new THREE.ShapeGeometry(createDiamond(0.82, 1.04)),
+    materials.displayEnergy,
+  );
   face.position.z = 0.018;
   return face;
 }

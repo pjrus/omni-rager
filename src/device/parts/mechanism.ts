@@ -20,7 +20,10 @@ function buildMechanismCarrier(materials: DeviceMaterials) {
 /** One radial rail spoke, at the given index of six evenly spaced around the plate. */
 function buildMechanismRail(materials: DeviceMaterials, index: number) {
   const angle = (index / 6) * Math.PI * 2;
-  const rail = new THREE.Mesh(new RoundedBoxGeometry(0.16, 0.68, 0.13, 2, 0.035), materials.gunmetal);
+  const rail = new THREE.Mesh(
+    new RoundedBoxGeometry(0.16, 0.68, 0.13, 2, 0.035),
+    materials.gunmetal,
+  );
   rail.position.set(Math.cos(angle) * 1.08, Math.sin(angle) * 1.08, 0.65);
   rail.rotation.z = angle + Math.PI / 2;
   return rail;

@@ -11,7 +11,10 @@ function buildDialPlate(materials: DeviceMaterials) {
 
 /** The outer selector dial ring the user drags to rotate through projects (rotated via `dialTarget` in `update()`). */
 function buildDialRing(materials: DeviceMaterials) {
-  const dialRing = new THREE.Mesh(new THREE.TorusGeometry(1.4, 0.075, 12, 64), materials.blackMetal);
+  const dialRing = new THREE.Mesh(
+    new THREE.TorusGeometry(1.4, 0.075, 12, 64),
+    materials.blackMetal,
+  );
   dialRing.position.z = 0.94;
   return dialRing;
 }

@@ -23,7 +23,10 @@ function buildCaseTop(materials: DeviceMaterials) {
 
 /** The large black ring framing the dial; returned separately so it can be mounted in its own `outerRing` group and spin independently. */
 function buildOuterBezel(materials: DeviceMaterials) {
-  const outerBezel = new THREE.Mesh(new THREE.TorusGeometry(1.86, 0.24, 18, 80), materials.blackMetal);
+  const outerBezel = new THREE.Mesh(
+    new THREE.TorusGeometry(1.86, 0.24, 18, 80),
+    materials.blackMetal,
+  );
   outerBezel.position.z = 0.7;
   return outerBezel;
 }

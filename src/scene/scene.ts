@@ -18,13 +18,19 @@ export function initialiseScene(state: AppState) {
     state.camera = new THREE.PerspectiveCamera(34, window.innerWidth / window.innerHeight, 0.1, 60);
     state.camera.position.set(0, 0, compactDevice.matches ? 11.2 : 10.5);
 
-    state.renderer = new THREE.WebGLRenderer({ canvas, antialias: true, powerPreference: "high-performance" });
+    state.renderer = new THREE.WebGLRenderer({
+      canvas,
+      antialias: true,
+      powerPreference: "high-performance",
+    });
     state.renderer.outputColorSpace = THREE.SRGBColorSpace;
     state.renderer.toneMapping = THREE.ACESFilmicToneMapping;
     state.renderer.toneMappingExposure = 1.05;
     state.renderer.shadowMap.enabled = !compactDevice.matches;
     state.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-    state.renderer.setPixelRatio(Math.min(window.devicePixelRatio, compactDevice.matches ? 1.35 : 1.8));
+    state.renderer.setPixelRatio(
+      Math.min(window.devicePixelRatio, compactDevice.matches ? 1.35 : 1.8),
+    );
     state.renderer.setSize(window.innerWidth, window.innerHeight, false);
 
     const ambient = new THREE.AmbientLight(0x667066, 0.7);
@@ -84,7 +90,9 @@ export function resize(state: AppState) {
   state.camera.aspect = width / height;
   state.camera.position.z = compactDevice.matches ? 11.2 : 10.5;
   state.camera.updateProjectionMatrix();
-  state.renderer.setPixelRatio(Math.min(window.devicePixelRatio, compactDevice.matches ? 1.35 : 1.8));
+  state.renderer.setPixelRatio(
+    Math.min(window.devicePixelRatio, compactDevice.matches ? 1.35 : 1.8),
+  );
   state.renderer.setSize(width, height, false);
   state.composer.setSize(width, height);
   state.bloom.setSize(width, height);
@@ -214,5 +222,8 @@ export function constrainOmniTargetToScene(state: AppState) {
 export function raycastDevice(event: PointerEvent, state: AppState) {
   updatePointer(event, state);
   state.raycaster.setFromCamera(state.pointer, state.camera);
-  return state.raycaster.intersectObjects([state.omni.centreHit, state.omni.dialHit, state.omni.dragHit], false);
+  return state.raycaster.intersectObjects(
+    [state.omni.centreHit, state.omni.dialHit, state.omni.dragHit],
+    false,
+  );
 }

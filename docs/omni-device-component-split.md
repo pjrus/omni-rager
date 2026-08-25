@@ -99,7 +99,6 @@ keeps `OmniDevice.ts` as the single place that owns the assembled tree and
 per-frame state — matching how `AppState` stayed the single owner of
 mutable state when `main.ts` was split.
 
-
 All numeric values (radii, positions, rotations, bevel settings) move
 verbatim — this is a structural extraction, not a redesign. No visual
 change is expected; `npm run build` plus a manual pass through boot /

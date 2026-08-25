@@ -15,7 +15,12 @@ export function applyProjectSelection(state: AppState, sounds: SoundSystem, inde
   updateProjectInterface(index);
 }
 
-export function animateProjectSelection(state: AppState, sounds: SoundSystem, index: number, direction: number) {
+export function animateProjectSelection(
+  state: AppState,
+  sounds: SoundSystem,
+  index: number,
+  direction: number,
+) {
   if (reducedMotion.matches) {
     applyProjectSelection(state, sounds, index);
     return;
@@ -46,7 +51,12 @@ export function animateProjectSelection(state: AppState, sounds: SoundSystem, in
  * as the user drags/flicks/scrolls) to the nearest discrete project index, wrapping around
  * with modulo so the dial can spin past either end of the project list.
  */
-export function selectFromRotation(state: AppState, sounds: SoundSystem, animate = false, direction = 1) {
+export function selectFromRotation(
+  state: AppState,
+  sounds: SoundSystem,
+  animate = false,
+  direction = 1,
+) {
   const omni = state.omni;
   const rawIndex = Math.round(-omni.dialTarget / projectStep);
   omni.dialTarget = -rawIndex * projectStep;
@@ -107,14 +117,22 @@ export function engageProject(state: AppState, sounds: SoundSystem) {
   const selectorTurn = omni.diamondDial.rotation.z + Math.PI * 2;
   timeline
     .to(omni.diamondDial.rotation, { z: selectorTurn, duration: 0.62 }, 0)
-    .call(() => {
-      omni.projectDisplay.visible = false;
-      omni.setHourglassVisible(true);
-    }, [], 0.64)
+    .call(
+      () => {
+        omni.projectDisplay.visible = false;
+        omni.setHourglassVisible(true);
+      },
+      [],
+      0.64,
+    )
     .to(omni.core.position, { z: -0.2, duration: 0.24 }, 0.64)
     .to(omni.leftShutter.position, { x: -0.5, duration: 0.3 }, 0.67)
     .to(omni.rightShutter.position, { x: 0.5, duration: 0.3 }, 0.67)
-    .to(omni.outerRing.rotation, { z: omni.outerRing.rotation.z - Math.PI * 0.32, duration: 0.48 }, 0.64)
+    .to(
+      omni.outerRing.rotation,
+      { z: omni.outerRing.rotation.z - Math.PI * 0.32, duration: 0.48 },
+      0.64,
+    )
     .to(omni.mechanism.scale, { x: 0.86, y: 0.86, duration: 0.3 }, 0.72)
     .call(() => sounds.play("transformation"), [], 0.9)
     .to(omni.dial.position, { z: 0.28, duration: 0.22 }, 0.89)
@@ -125,7 +143,16 @@ export function engageProject(state: AppState, sounds: SoundSystem) {
     .to(omni.mechanism.scale, { x: 1.05, y: 1.05, duration: 0.3 }, 1.32)
     .to(omni.mechanism.scale, { x: 1, y: 1, duration: 0.18 }, 1.62)
     .to(omni.dial.position, { z: 0.21, duration: 0.32 }, 1.46)
-    .to(omni.root.scale, { x: compactDevice.matches ? 0.76 : 0.9, y: compactDevice.matches ? 0.76 : 0.9, z: compactDevice.matches ? 0.76 : 0.9, duration: 0.55 }, 1.18)
+    .to(
+      omni.root.scale,
+      {
+        x: compactDevice.matches ? 0.76 : 0.9,
+        y: compactDevice.matches ? 0.76 : 0.9,
+        z: compactDevice.matches ? 0.76 : 0.9,
+        duration: 0.55,
+      },
+      1.18,
+    )
     .to(omni.particleMaterial, { opacity: 0.82, size: 0.055, duration: 0.24 }, 1.06)
     .to(omni.particleMaterial, { opacity: 0.34, size: 0.025, duration: 0.5 }, 1.44);
 }
@@ -166,7 +193,11 @@ export function switchActiveProject(state: AppState, sounds: SoundSystem, direct
     .to(omni.rightShutter.position, { x: 0.48, duration: 0.22, ease: "expo.in" }, 0)
     .to(omni.core.position, { z: 0.08, duration: 0.2, ease: "expo.in" }, 0)
     .call(applySwitch, [], 0.2)
-    .to(omni.core.rotation, { z: omni.core.rotation.z + direction * projectStep, duration: 0.42, ease: "expo.inOut" }, 0.18)
+    .to(
+      omni.core.rotation,
+      { z: omni.core.rotation.z + direction * projectStep, duration: 0.42, ease: "expo.inOut" },
+      0.18,
+    )
     .to(omni.leftShutter.position, { x: 0, duration: 0.34, ease: "back.out(2.1)" }, 0.4)
     .to(omni.rightShutter.position, { x: 0, duration: 0.34, ease: "back.out(2.1)" }, 0.4)
     .to(omni.core.position, { z: 0.38, duration: 0.3, ease: "back.out(2)" }, 0.4);
@@ -206,13 +237,27 @@ export function returnToSelector(state: AppState, sounds: SoundSystem) {
     .to(omni.leftShutter.position, { x: -0.38, duration: 0.22, ease: "expo.in" }, 0)
     .to(omni.rightShutter.position, { x: 0.38, duration: 0.22, ease: "expo.in" }, 0)
     .to(omni.core.position, { z: -0.18, duration: 0.28, ease: "expo.in" }, 0)
-    .to(omni.root.scale, { x: compactDevice.matches ? 0.7 : 0.82, y: compactDevice.matches ? 0.7 : 0.82, z: compactDevice.matches ? 0.7 : 0.82, duration: 0.38, ease: "expo.out" }, 0.18)
+    .to(
+      omni.root.scale,
+      {
+        x: compactDevice.matches ? 0.7 : 0.82,
+        y: compactDevice.matches ? 0.7 : 0.82,
+        z: compactDevice.matches ? 0.7 : 0.82,
+        duration: 0.38,
+        ease: "expo.out",
+      },
+      0.18,
+    )
     .to(omni.leftShutter.position, { x: 0, duration: 0.28, ease: "back.out(2)" }, 0.3)
     .to(omni.rightShutter.position, { x: 0, duration: 0.28, ease: "back.out(2)" }, 0.3)
     .to(omni.core.position, { z: 0, duration: 0.32, ease: "back.out(2)" }, 0.3)
-    .call(() => {
-      omni.setHourglassVisible(false);
-      omni.projectDisplay.visible = true;
-    }, [], 0.62)
+    .call(
+      () => {
+        omni.setHourglassVisible(false);
+        omni.projectDisplay.visible = true;
+      },
+      [],
+      0.62,
+    )
     .to(omni.diamondDial.rotation, { z: 0, duration: 0.62, ease: "expo.inOut" }, 0.62);
 }

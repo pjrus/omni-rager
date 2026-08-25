@@ -104,7 +104,9 @@ button:disabled {
   padding: 32px;
   background: var(--ground);
   text-align: center;
-  transition: opacity 500ms cubic-bezier(0.22, 1, 0.36, 1), visibility 500ms;
+  transition:
+    opacity 500ms cubic-bezier(0.22, 1, 0.36, 1),
+    visibility 500ms;
 }
 
 .boot.is-hidden {
@@ -186,7 +188,8 @@ button:disabled {
   display: grid;
   grid-template-columns: 1fr auto 1fr;
   align-items: center;
-  padding: max(22px, env(safe-area-inset-top)) max(24px, env(safe-area-inset-right)) 16px max(24px, env(safe-area-inset-left));
+  padding: max(22px, env(safe-area-inset-top)) max(24px, env(safe-area-inset-right)) 16px
+    max(24px, env(safe-area-inset-left));
   pointer-events: none;
 }
 
@@ -247,7 +250,10 @@ button:disabled {
   border-radius: 50%;
   background: var(--surface);
   cursor: pointer;
-  transition: border-color 180ms, background-color 180ms, color 180ms;
+  transition:
+    border-color 180ms,
+    background-color 180ms,
+    color 180ms;
 }
 
 .icon-button {
@@ -326,7 +332,11 @@ main,
   opacity: 0;
   pointer-events: none;
   transform: translate(-50%, -6px);
-  transition: opacity 180ms, transform 180ms, border-color 180ms, color 180ms;
+  transition:
+    opacity 180ms,
+    transform 180ms,
+    border-color 180ms,
+    color 180ms;
 }
 
 .drag-feedback__indicator {
@@ -401,7 +411,9 @@ main,
   width: min(28vw, 390px);
   opacity: 0;
   pointer-events: none;
-  transition: opacity 420ms ease, transform 550ms cubic-bezier(0.22, 1, 0.36, 1);
+  transition:
+    opacity 420ms ease,
+    transform 550ms cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 .has-explored .project {
@@ -533,7 +545,9 @@ main,
   text-decoration: none;
   text-transform: uppercase;
   cursor: pointer;
-  transition: background-color 180ms, color 180ms;
+  transition:
+    background-color 180ms,
+    color 180ms;
 }
 
 .button:hover {
@@ -580,7 +594,9 @@ main,
   color: var(--muted);
   text-align: center;
   transform: translateX(-50%);
-  transition: opacity 300ms, transform 400ms;
+  transition:
+    opacity 300ms,
+    transform 400ms;
 }
 
 .has-explored .instruction,
@@ -629,7 +645,9 @@ main,
   opacity: 0;
   pointer-events: none;
   transform: translateX(-50%) translateY(16px);
-  transition: opacity 350ms, transform 450ms cubic-bezier(0.22, 1, 0.36, 1);
+  transition:
+    opacity 350ms,
+    transform 450ms cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 .has-explored .dial-controls {
@@ -691,7 +709,10 @@ main,
   opacity: 0;
   pointer-events: none;
   transform: translateX(-50%) translateY(10px);
-  transition: opacity 300ms, transform 400ms, color 180ms;
+  transition:
+    opacity 300ms,
+    transform 400ms,
+    color 180ms;
 }
 
 .return-button:hover {

@@ -77,7 +77,9 @@ canvas.addEventListener("pointerdown", (event) => onPointerDown(event, state));
 canvas.addEventListener("pointermove", (event) => onPointerMove(event, state));
 canvas.addEventListener("pointerup", (event) => onPointerUp(event, state, sounds));
 canvas.addEventListener("pointercancel", (event) => onPointerUp(event, state, sounds));
-canvas.addEventListener("lostpointercapture", (event) => onLostPointerCapture(event, state, sounds));
+canvas.addEventListener("lostpointercapture", (event) =>
+  onLostPointerCapture(event, state, sounds),
+);
 sceneWrap.addEventListener("wheel", (event) => onWheel(event, state, sounds), { passive: false });
 window.addEventListener("resize", () => resize(state));
 window.addEventListener("blur", () => cancelPointerInteraction(state, sounds));

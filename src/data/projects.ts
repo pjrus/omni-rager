@@ -30,7 +30,8 @@ export const projects: Project[] = [
   {
     name: "Signal / Noise",
     category: "Data experience",
-    description: "Live environmental data translated into a calm, explorable audiovisual instrument.",
+    description:
+      "Live environmental data translated into a calm, explorable audiovisual instrument.",
     tags: ["REACT", "D3", "WEB AUDIO"],
     link: "https://example.com/?project=signal-noise",
     symbol: assetUrl("project-symbols/signal-noise.svg"),
@@ -46,7 +47,8 @@ export const projects: Project[] = [
   {
     name: "Assembly",
     category: "Product platform",
-    description: "A modular collaboration space that turns complex production work into a shared timeline.",
+    description:
+      "A modular collaboration space that turns complex production work into a shared timeline.",
     tags: ["TYPESCRIPT", "DESIGN SYSTEM", "API"],
     link: "https://example.com/?project=assembly",
     symbol: assetUrl("project-symbols/assembly.svg"),
@@ -54,7 +56,8 @@ export const projects: Project[] = [
   {
     name: "Afterimage",
     category: "Cultural archive",
-    description: "An atmospheric exhibition archive designed for wandering, recollection and discovery.",
+    description:
+      "An atmospheric exhibition archive designed for wandering, recollection and discovery.",
     tags: ["NEXT.JS", "3D", "CMS"],
     link: "https://example.com/?project=afterimage",
     symbol: assetUrl("project-symbols/afterimage.svg"),

@@ -19,9 +19,7 @@
     -->
     <div id="app">
       <div class="boot" id="boot" role="dialog" aria-modal="true" aria-labelledby="boot-title">
-        <div class="boot__mark" aria-hidden="true">
-          <span></span><span></span>
-        </div>
+        <div class="boot__mark" aria-hidden="true"><span></span><span></span></div>
         <p class="utility">ARCHIVE INTERFACE / 005</p>
         <h1 id="boot-title">Omni Rager</h1>
         <p class="boot__copy">A project archive contained inside an experimental selector.</p>
@@ -31,16 +29,28 @@
 
       <header class="site-header">
         <a class="wordmark" href="#" aria-label="Omni Rager home">
-          <svg viewBox="0 0 38 38" aria-hidden="true"><path d="M7 4h24l-8 15 8 15H7l8-15L7 4Zm8 6 4 7 4-7h-8Zm0 18h8l-4-7-4 7Z" /></svg>
+          <svg viewBox="0 0 38 38" aria-hidden="true">
+            <path d="M7 4h24l-8 15 8 15H7l8-15L7 4Zm8 6 4 7 4-7h-8Zm0 18h8l-4-7-4 7Z" />
+          </svg>
           <span>OMNI<br />RAGER</span>
         </a>
         <div class="header-status" aria-live="polite">
           <span class="status-light"></span>
           <span id="system-status">CORE OFFLINE</span>
         </div>
-        <button class="icon-button" id="audio-toggle" type="button" aria-label="Mute sound" aria-pressed="false">
-          <svg class="sound-on" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9v6h4l5 4V5L8 9H4Zm12.2-.8a5.3 5.3 0 0 1 0 7.6M18.9 5.5a9 9 0 0 1 0 13" /></svg>
-          <svg class="sound-off" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9v6h4l5 4V5L8 9H4Zm12 1 5 5m0-5-5 5" /></svg>
+        <button
+          class="icon-button"
+          id="audio-toggle"
+          type="button"
+          aria-label="Mute sound"
+          aria-pressed="false"
+        >
+          <svg class="sound-on" viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M4 9v6h4l5 4V5L8 9H4Zm12.2-.8a5.3 5.3 0 0 1 0 7.6M18.9 5.5a9 9 0 0 1 0 13" />
+          </svg>
+          <svg class="sound-off" viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M4 9v6h4l5 4V5L8 9H4Zm12 1 5 5m0-5-5 5" />
+          </svg>
         </button>
       </header>
 
@@ -65,14 +75,22 @@
           </div>
           <p class="project__category" id="project-category">IMMERSIVE COMMERCE</p>
           <h2 id="project-title">Arcfield</h2>
-          <p class="project__description" id="project-description">A spatial retail world where products respond to light, proximity and gesture.</p>
+          <p class="project__description" id="project-description">
+            A spatial retail world where products respond to light, proximity and gesture.
+          </p>
         </section>
 
         <section class="project project--right" id="project-secondary" aria-label="Project details">
           <div class="signal-row"><span>LINK STABILITY</span><span>100%</span></div>
           <div class="signal-bar" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></div>
           <ul class="tags" id="project-tags" aria-label="Technologies"></ul>
-          <a class="button button--project" id="project-link" href="https://example.com" target="_blank" rel="noreferrer">
+          <a
+            class="button button--project"
+            id="project-link"
+            href="https://example.com"
+            target="_blank"
+            rel="noreferrer"
+          >
             View project
             <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14m-5-5 5 5-5 5" /></svg>
           </a>
@@ -80,12 +98,23 @@
 
         <div class="instruction" id="instruction">
           <span class="instruction__line"></span>
-          <p><strong>Rotate to explore</strong><span>Drag the ring or housing for 360° view, hold the centre to reposition, or use arrow keys</span></p>
+          <p>
+            <strong>Rotate to explore</strong
+            ><span
+              >Drag the ring or housing for 360° view, hold the centre to reposition, or use arrow
+              keys</span
+            >
+          </p>
           <span class="instruction__line"></span>
         </div>
 
         <div class="dial-controls" aria-label="Project navigation">
-          <button class="dial-button" id="previous-project" type="button" aria-label="Previous project">
+          <button
+            class="dial-button"
+            id="previous-project"
+            type="button"
+            aria-label="Previous project"
+          >
             <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m15 5-7 7 7 7" /></svg>
           </button>
           <button class="engage-button" id="engage-project" type="button">

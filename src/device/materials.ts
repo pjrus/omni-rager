@@ -10,10 +10,18 @@ export function createMaterials() {
   return {
     graphite: new THREE.MeshStandardMaterial({ color: 0x1a1d1b, metalness: 0.3, roughness: 0.42 }),
     gunmetal: new THREE.MeshStandardMaterial({ color: 0x343836, metalness: 0.52, roughness: 0.32 }),
-    blackMetal: new THREE.MeshStandardMaterial({ color: 0x070908, metalness: 0.25, roughness: 0.48 }),
+    blackMetal: new THREE.MeshStandardMaterial({
+      color: 0x070908,
+      metalness: 0.25,
+      roughness: 0.48,
+    }),
     bone: new THREE.MeshStandardMaterial({ color: 0xe6e9e4, metalness: 0.12, roughness: 0.32 }),
     silver: new THREE.MeshStandardMaterial({ color: 0xc7cbc6, metalness: 0.72, roughness: 0.23 }),
-    shutterMaterial: new THREE.MeshStandardMaterial({ color: 0x606461, metalness: 0.38, roughness: 0.36 }),
+    shutterMaterial: new THREE.MeshStandardMaterial({
+      color: 0x606461,
+      metalness: 0.38,
+      roughness: 0.36,
+    }),
     energy: new THREE.MeshStandardMaterial({
       color: 0x9bff32,
       emissive: 0x4f9e0c,

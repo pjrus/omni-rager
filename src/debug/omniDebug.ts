@@ -25,5 +25,7 @@ export function installOmniDebug(state: AppState) {
   };
 
   (window as unknown as { omniDebug: typeof omniDebug }).omniDebug = omniDebug;
-  console.info("[omniDebug] window.omniDebug.setRotation(x, y) available for debugging device angle.");
+  console.info(
+    "[omniDebug] window.omniDebug.setRotation(x, y) available for debugging device angle.",
+  );
 }
