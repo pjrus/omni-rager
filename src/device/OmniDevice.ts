@@ -319,7 +319,7 @@ export class OmniDevice {
 
     // The raised silver lip keeps the shutters physically inside the selector pod.
     const silverBezel = new THREE.Mesh(new THREE.TorusGeometry(1.34, 0.085, 14, 80), this.silver);
-    silverBezel.position.z = 1.32;
+    silverBezel.position.z = 1.1;
     this.core.add(silverBezel);
 
     this.root.add(this.core);
