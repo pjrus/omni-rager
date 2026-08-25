@@ -3,6 +3,15 @@ import { RoundedBoxGeometry } from "three/addons/geometries/RoundedBoxGeometry.j
 import { projects } from "../data/projects";
 import { compactDevice, reducedMotion } from "../state";
 
+/**
+ * Procedurally builds the device's entire Three.js scene graph (housing, case,
+ * mechanism, dial, core/shutters, project display, and ambient particles) out of
+ * primitive geometry rather than a loaded model, and owns the per-frame
+ * animation/interaction state — dialTarget, active, busy, positionTarget, etc.
+ * That state is read and mutated by other modules (interactions/pointer.ts,
+ * animations/projectFlow.ts, scene/scene.ts) rather than by this class itself,
+ * so OmniDevice acts as the shared model + view for the device.
+ */
 export class OmniDevice {
   readonly root = new THREE.Group();
   readonly dial = new THREE.Group();
@@ -63,6 +72,7 @@ export class OmniDevice {
     this.setHourglassVisible(false);
     this.buildParticles();
 
+    // The dial hit ring backs drag-to-rotate interaction on the outer selector dial.
     this.dialHit = new THREE.Mesh(
       new THREE.RingGeometry(1.38, 2.08, 64),
       new THREE.MeshBasicMaterial({ visible: false, side: THREE.DoubleSide }),
@@ -70,6 +80,7 @@ export class OmniDevice {
     this.dialHit.position.z = 0.9;
     this.root.add(this.dialHit);
 
+    // The centre hit disc backs tap-to-engage on the core, independent of dial rotation.
     this.centreHit = new THREE.Mesh(
       new THREE.CircleGeometry(1.35, 48),
       new THREE.MeshBasicMaterial({ visible: false, side: THREE.DoubleSide }),
@@ -99,6 +110,7 @@ export class OmniDevice {
     return mesh;
   }
 
+  // The outer wrist-strap chassis: main body, upper/lower bridges, shoulders, seams, and finger guards.
   private buildHousing() {
     const chassis = new THREE.Mesh(new RoundedBoxGeometry(4.58, 5.02, 0.92, 6, 0.28), this.blackMetal);
     chassis.position.z = -0.68;
@@ -164,6 +176,7 @@ export class OmniDevice {
     });
   }
 
+  // The circular pod that sits on top of the housing and holds the dial/core: base, bezel, and side buttons.
   private buildCase() {
     const base = this.cylinder(2.12, 0.74, this.blackMetal, 80);
     base.position.z = -0.18;
@@ -201,6 +214,7 @@ export class OmniDevice {
     this.root.add(lowerIndicator);
   }
 
+  // The inner rotating plate and rail spokes visible beneath the dial, seen spinning while the device is active.
   private buildMechanism() {
     const plate = this.cylinder(1.5, 0.18, this.blackMetal, 64);
     plate.position.z = 0.52;
@@ -221,6 +235,7 @@ export class OmniDevice {
     this.root.add(this.mechanism);
   }
 
+  // The outer selector dial ring the user drags to rotate through projects (rotated via dialTarget in update()).
   private buildDial() {
     const dialPlate = this.cylinder(1.48, 0.18, this.graphite, 64);
     dialPlate.position.z = 0.82;
@@ -233,6 +248,7 @@ export class OmniDevice {
     this.root.add(this.dial);
   }
 
+  // The centre core: glowing energy face, the two shutters that part to reveal it, lens, and silver bezel.
   private buildCore() {
     const cradle = this.cylinder(1.4, 0.2, this.darkEnergy, 64);
     cradle.position.z = 0.94;
@@ -309,6 +325,7 @@ export class OmniDevice {
     this.root.add(this.core);
   }
 
+  // The diamond-shaped "project display" plate mounted on the core, showing the selected project's symbol.
   private buildProjectDisplay() {
     const createDiamond = (halfWidth: number, halfHeight: number) => {
       const shape = new THREE.Shape();
@@ -363,6 +380,7 @@ export class OmniDevice {
     this.core.add(this.projectDisplay);
   }
 
+  // The ambient particle field drifting around the device (not part of the physical model).
   private buildParticles() {
     const count = compactDevice.matches ? 90 : 180;
     const positions = new Float32Array(count * 3);
@@ -387,17 +405,27 @@ export class OmniDevice {
     this.root.add(particles);
   }
 
+  /**
+   * Selects a project by index (wrapping around projects.length in either direction)
+   * and swaps the diamond dial's texture to that project's symbol. Called by the
+   * dial-rotation interaction as the user scrolls through projects.
+   */
   setProject(index: number) {
     this.selectedIndex = ((index % projects.length) + projects.length) % projects.length;
     this.projectSymbol.material = this.symbolMaterials[this.selectedIndex];
   }
 
+  /**
+   * Shows or hides the glowing core (energy face + shutters) beneath the project
+   * display, e.g. while the "hourglass" charge-up animation is running.
+   */
   setHourglassVisible(visible: boolean) {
     this.energyFace.visible = visible;
     this.leftShutter.visible = visible;
     this.rightShutter.visible = visible;
   }
 
+  /** Advances all per-frame animation state; called every frame from scene/scene.ts's render loop. */
   update(delta: number, elapsed: number, rotationTarget: THREE.Vector2) {
     const damping = 1 - Math.exp(-delta * 12);
     const bob = this.getBobOffset(elapsed);
@@ -417,10 +445,16 @@ export class OmniDevice {
     }
   }
 
+  /** Returns the idle vertical bob offset at the given elapsed time (zero when reduced motion is on). */
   getBobOffset(elapsed: number) {
     return reducedMotion.matches ? 0 : Math.sin(elapsed * 0.75) * 0.035;
   }
 
+  /**
+   * Reconciles positionTarget with the device's current on-screen position, subtracting
+   * out the idle bob so it doesn't get baked in. Called before a drag begins so the
+   * device continues from where it visually is instead of snapping/jumping.
+   */
   syncPositionTarget(elapsed: number) {
     this.positionTarget.set(this.root.position.x, this.root.position.y - this.getBobOffset(elapsed), this.root.position.z);
   }
