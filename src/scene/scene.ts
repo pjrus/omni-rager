@@ -1,3 +1,6 @@
+// Three.js renderer/scene/camera bootstrap and the render loop, plus the screen<->world
+// projection math (raycasting, plane intersection, projected bounding-box extents) that
+// keeps pointer/drag interactions in `interactions/pointer.ts` in sync with the 3D device.
 import * as THREE from "three";
 import { EffectComposer } from "three/addons/postprocessing/EffectComposer.js";
 import { RenderPass } from "three/addons/postprocessing/RenderPass.js";
@@ -91,6 +94,7 @@ export function resize(state: AppState) {
   constrainOmniTargetToScene(state);
 }
 
+/** Angle (radians) from the device's on-screen centre to the pointer, used to track dial-rotation drags. */
 export function screenAngle(event: PointerEvent, state: AppState) {
   const bounds = canvas.getBoundingClientRect();
   const centre = new THREE.Vector3();
@@ -116,6 +120,7 @@ export function projectToScreen(position: THREE.Vector3, state: AppState) {
   );
 }
 
+/** Casts a ray from a screen point through the camera and intersects it with the drag plane, giving the world-space point currently under the pointer. */
 export function worldPositionAtScreen(clientX: number, clientY: number, state: AppState) {
   const bounds = canvas.getBoundingClientRect();
   state.pointer.x = ((clientX - bounds.left) / bounds.width) * 2 - 1;
@@ -124,6 +129,12 @@ export function worldPositionAtScreen(clientX: number, clientY: number, state: A
   return state.raycaster.ray.intersectPlane(state.dragPlane, state.dragWorldPosition);
 }
 
+/**
+ * Measures the device's world-space bounding box and projects its corners to screen
+ * space, returning the half-width/half-height (in pixels) it currently occupies. Used
+ * instead of a fixed margin so the drag boundary adapts to the device's actual on-screen
+ * size (which changes with scale/distance/viewport).
+ */
 export function getProjectedDeviceHalfExtents(state: AppState) {
   const worldBounds = new THREE.Box3();
   state.omni.root.updateMatrixWorld(true);
@@ -162,6 +173,7 @@ export function getProjectedDeviceHalfExtents(state: AppState) {
   return halfExtents;
 }
 
+/** Clamps a candidate world position so the device's projected screen bounds stay fully inside the canvas, then converts the clamped screen point back to world space. */
 export function constrainDragPosition(position: THREE.Vector3, state: AppState) {
   const bounds = canvas.getBoundingClientRect();
   const halfExtents = getProjectedDeviceHalfExtents(state);
