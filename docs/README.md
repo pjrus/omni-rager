@@ -14,4 +14,10 @@ This folder is a placeholder — nothing has been written yet. Candidate docs to
 - `animations.md` — the GSAP timelines in `src/animations/projectFlow.ts` that drive the
   "transformation" choreography (engage / return / switch / dial select).
 
+Written:
+
+- [`omni-device-component-split.md`](./omni-device-component-split.md) — plan to split
+  `src/device/OmniDevice.ts` into per-region part files (housing/case/mechanism/dial/
+  core/projectDisplay/particles), one exported function per named part.
+
 See `TODO.md` at the repo root for the running list of follow-up work.
