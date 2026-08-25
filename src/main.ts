@@ -72,6 +72,7 @@ const returnButton = document.querySelector<HTMLButtonElement>("#return-button")
 const previousButton = document.querySelector<HTMLButtonElement>("#previous-project")!;
 const nextButton = document.querySelector<HTMLButtonElement>("#next-project")!;
 const systemStatus = document.querySelector<HTMLElement>("#system-status")!;
+const dragFeedbackLabel = document.querySelector<HTMLElement>("#drag-feedback-label")!;
 const numberNode = document.querySelector<HTMLElement>("#project-number")!;
 const categoryNode = document.querySelector<HTMLElement>("#project-category")!;
 const titleNode = document.querySelector<HTMLElement>("#project-title")!;
@@ -156,6 +157,7 @@ class OmniDevice {
   energyFace!: THREE.Mesh;
   readonly centreHit: THREE.Mesh;
   readonly dialHit: THREE.Mesh;
+  readonly dragHit: THREE.Mesh;
   particleMaterial!: THREE.PointsMaterial;
 
   dialTarget = 0;
@@ -163,6 +165,7 @@ class OmniDevice {
   selectedIndex = 0;
   active = false;
   busy = false;
+  readonly positionTarget = new THREE.Vector3();
 
   private readonly graphite = new THREE.MeshStandardMaterial({ color: 0x1a1d1b, metalness: 0.3, roughness: 0.42 });
   private readonly gunmetal = new THREE.MeshStandardMaterial({ color: 0x343836, metalness: 0.52, roughness: 0.32 });
@@ -215,8 +218,16 @@ class OmniDevice {
     this.centreHit.position.z = 1.04;
     this.root.add(this.centreHit);
 
+    // The housing hit area lets a long-press begin away from the selector dial.
+    this.dragHit = new THREE.Mesh(
+      new THREE.CircleGeometry(2.72, 64),
+      new THREE.MeshBasicMaterial({ visible: false, side: THREE.DoubleSide }),
+    );
+    this.dragHit.position.z = 0.5;
+    this.root.add(this.dragHit);
+
     this.root.traverse((object) => {
-      if (object instanceof THREE.Mesh && object !== this.dialHit && object !== this.centreHit) {
+      if (object instanceof THREE.Mesh && object !== this.dialHit && object !== this.centreHit && object !== this.dragHit) {
         object.castShadow = true;
         object.receiveShadow = true;
       }
@@ -530,18 +541,29 @@ class OmniDevice {
 
   update(delta: number, elapsed: number, rotationTarget: THREE.Vector2) {
     const damping = 1 - Math.exp(-delta * 12);
+    const bob = this.getBobOffset(elapsed);
     this.dial.rotation.z = THREE.MathUtils.lerp(this.dial.rotation.z, this.dialTarget, damping);
     this.root.rotation.x = THREE.MathUtils.lerp(this.root.rotation.x, rotationTarget.x, damping);
     this.root.rotation.y = THREE.MathUtils.lerp(this.root.rotation.y, rotationTarget.y, damping);
+    this.root.position.x = THREE.MathUtils.lerp(this.root.position.x, this.positionTarget.x, damping);
+    this.root.position.y = THREE.MathUtils.lerp(this.root.position.y, this.positionTarget.y + bob, damping);
+    this.root.position.z = THREE.MathUtils.lerp(this.root.position.z, this.positionTarget.z, damping);
     this.outerRing.rotation.z += delta * (this.active ? -0.025 : 0);
     this.mechanism.rotation.z += delta * (this.active ? 0.055 : 0);
 
     if (!reducedMotion.matches) {
-      this.root.position.y = Math.sin(elapsed * 0.75) * 0.035;
       const particles = this.root.getObjectByName("particles");
       if (particles) particles.rotation.z -= delta * 0.025;
       this.energy.emissiveIntensity = (this.active ? 1.25 : 0.82) + Math.sin(elapsed * 2.4) * 0.1;
     }
+  }
+
+  getBobOffset(elapsed: number) {
+    return reducedMotion.matches ? 0 : Math.sin(elapsed * 0.75) * 0.035;
+  }
+
+  syncPositionTarget(elapsed: number) {
+    this.positionTarget.set(this.root.position.x, this.root.position.y - this.getBobOffset(elapsed), this.root.position.z);
   }
 }
 
@@ -560,13 +582,20 @@ let lastPointerAngle = 0;
 let wheelLocked = false;
 let activePointerId: number | null = null;
 let longPressTimer: number | null = null;
-let interactionMode: "idle" | "pending" | "dial" | "orbit" | "cancelled" = "idle";
+let interactionMode: "idle" | "pending" | "dial" | "rotate" | "drag" | "cancelled" = "idle";
+let pressTarget: "centre" | "housing" | null = null;
 const longPressDelay = 450;
 const tapMovementLimit = 8;
+const dragBoundaryPadding = 12;
 const pointer = new THREE.Vector2();
 const lastPointerPosition = new THREE.Vector2();
 const pressStartPosition = new THREE.Vector2();
 const deviceRotationTarget = new THREE.Vector2(-0.06, 0.12);
+const dragPlane = new THREE.Plane(new THREE.Vector3(0, 0, 1), 0);
+const dragOffset = new THREE.Vector3();
+const dragWorldPosition = new THREE.Vector3();
+const dragTargetPosition = new THREE.Vector3();
+const dragConstrainedPosition = new THREE.Vector3();
 const raycaster = new THREE.Raycaster();
 const sounds = new SoundSystem();
 
@@ -652,6 +681,7 @@ function resize() {
   const selectorScale = compactDevice.matches ? 0.7 : 0.82;
   const engagedScale = compactDevice.matches ? 0.76 : 0.9;
   omni.root.scale.setScalar(omni.active ? engagedScale : selectorScale);
+  constrainOmniTargetToScene();
 }
 
 function screenAngle(event: PointerEvent) {
@@ -670,10 +700,102 @@ function updatePointer(event: PointerEvent) {
   pointer.y = -((event.clientY - bounds.top) / bounds.height) * 2 + 1;
 }
 
+function projectToScreen(position: THREE.Vector3) {
+  const bounds = canvas.getBoundingClientRect();
+  const projected = position.clone().project(camera);
+  return new THREE.Vector2(
+    bounds.left + ((projected.x + 1) * bounds.width) / 2,
+    bounds.top + ((1 - projected.y) * bounds.height) / 2,
+  );
+}
+
+function worldPositionAtScreen(clientX: number, clientY: number) {
+  const bounds = canvas.getBoundingClientRect();
+  pointer.x = ((clientX - bounds.left) / bounds.width) * 2 - 1;
+  pointer.y = -((clientY - bounds.top) / bounds.height) * 2 + 1;
+  raycaster.setFromCamera(pointer, camera);
+  return raycaster.ray.intersectPlane(dragPlane, dragWorldPosition);
+}
+
+function getProjectedDeviceHalfExtents() {
+  const worldBounds = new THREE.Box3();
+  omni.root.updateMatrixWorld(true);
+  omni.root.traverse((object) => {
+    if (
+      object instanceof THREE.Mesh &&
+      object !== omni.centreHit &&
+      object !== omni.dialHit &&
+      object !== omni.dragHit &&
+      object.name !== "particles"
+    ) {
+      worldBounds.expandByObject(object);
+    }
+  });
+
+  if (worldBounds.isEmpty()) return new THREE.Vector2();
+
+  const worldCentre = omni.root.getWorldPosition(new THREE.Vector3());
+  const screenCentre = projectToScreen(worldCentre);
+  const corners = [
+    new THREE.Vector3(worldBounds.min.x, worldBounds.min.y, worldBounds.min.z),
+    new THREE.Vector3(worldBounds.min.x, worldBounds.min.y, worldBounds.max.z),
+    new THREE.Vector3(worldBounds.min.x, worldBounds.max.y, worldBounds.min.z),
+    new THREE.Vector3(worldBounds.min.x, worldBounds.max.y, worldBounds.max.z),
+    new THREE.Vector3(worldBounds.max.x, worldBounds.min.y, worldBounds.min.z),
+    new THREE.Vector3(worldBounds.max.x, worldBounds.min.y, worldBounds.max.z),
+    new THREE.Vector3(worldBounds.max.x, worldBounds.max.y, worldBounds.min.z),
+    new THREE.Vector3(worldBounds.max.x, worldBounds.max.y, worldBounds.max.z),
+  ];
+  const halfExtents = new THREE.Vector2();
+  corners.forEach((corner) => {
+    const screenCorner = projectToScreen(corner);
+    halfExtents.x = Math.max(halfExtents.x, Math.abs(screenCorner.x - screenCentre.x));
+    halfExtents.y = Math.max(halfExtents.y, Math.abs(screenCorner.y - screenCentre.y));
+  });
+  return halfExtents;
+}
+
+function constrainDragPosition(position: THREE.Vector3) {
+  const bounds = canvas.getBoundingClientRect();
+  const halfExtents = getProjectedDeviceHalfExtents();
+  const screenPosition = projectToScreen(position);
+  const horizontalInset = Math.min(halfExtents.x + dragBoundaryPadding, bounds.width / 2);
+  const verticalInset = Math.min(halfExtents.y + dragBoundaryPadding, bounds.height / 2);
+  const constrainedX = THREE.MathUtils.clamp(
+    screenPosition.x,
+    bounds.left + horizontalInset,
+    bounds.right - horizontalInset,
+  );
+  const constrainedY = THREE.MathUtils.clamp(
+    screenPosition.y,
+    bounds.top + verticalInset,
+    bounds.bottom - verticalInset,
+  );
+
+  const worldPosition = worldPositionAtScreen(constrainedX, constrainedY);
+  if (worldPosition) position.copy(worldPosition);
+  return position;
+}
+
+function constrainOmniTargetToScene() {
+  if (!omni || !camera) return;
+  dragTargetPosition.set(
+    omni.positionTarget.x,
+    omni.positionTarget.y + omni.getBobOffset(elapsed),
+    omni.positionTarget.z,
+  );
+  constrainDragPosition(dragTargetPosition);
+  omni.positionTarget.set(
+    dragTargetPosition.x,
+    dragTargetPosition.y - omni.getBobOffset(elapsed),
+    omni.positionTarget.z,
+  );
+}
+
 function raycastDevice(event: PointerEvent) {
   updatePointer(event);
   raycaster.setFromCamera(pointer, camera);
-  return raycaster.intersectObjects([omni.centreHit, omni.dialHit], false);
+  return raycaster.intersectObjects([omni.centreHit, omni.dialHit, omni.dragHit], false);
 }
 
 function revealPortfolio() {
@@ -903,31 +1025,70 @@ function returnToSelector() {
     .to(omni.diamondDial.rotation, { z: 0, duration: 0.62, ease: "expo.inOut" }, 0.62);
 }
 
+function setDragFeedback(state: "idle" | "pressing" | "dragging") {
+  sceneWrap.classList.toggle("is-pressing", state === "pressing");
+  sceneWrap.classList.toggle("is-dragging", state === "dragging");
+
+  if (state === "pressing") {
+    dragFeedbackLabel.textContent = "Hold to reposition";
+    systemStatus.textContent = "HOLD TO REPOSITION";
+  } else if (state === "dragging") {
+    dragFeedbackLabel.textContent = "Drag to move Omnitrix";
+    systemStatus.textContent = "REPOSITIONING";
+  } else {
+    dragFeedbackLabel.textContent = "Hold to reposition";
+    systemStatus.textContent = omni.active ? "PROJECT LINKED" : explored ? "SELECTOR READY" : "CORE OFFLINE";
+  }
+}
+
 function onPointerDown(event: PointerEvent) {
-  if (omni.busy || omni.active || activePointerId !== null || (event.pointerType === "mouse" && event.button !== 0)) return;
+  if (
+    omni.busy ||
+    activePointerId !== null ||
+    !event.isPrimary ||
+    (event.pointerType === "mouse" && event.button !== 0)
+  ) return;
   const hits = raycastDevice(event);
   if (!hits.length) return;
 
+  const hitObject = hits[0].object;
   activePointerId = event.pointerId;
   pointerMoved = 0;
   pressStartPosition.set(event.clientX, event.clientY);
   lastPointerPosition.copy(pressStartPosition);
+  pressTarget = hitObject === omni.centreHit ? "centre" : "housing";
   canvas.setPointerCapture(event.pointerId);
+  event.preventDefault();
 
-  if (hits[0].object === omni.dialHit) {
-    interactionMode = "dial";
+  if (hitObject === omni.dialHit) {
+    interactionMode = omni.active ? "rotate" : "dial";
     omni.dialVelocity = 0;
     lastPointerAngle = screenAngle(event);
     canvas.classList.add("is-dragging");
     return;
   }
 
+  if (hitObject === omni.dragHit && omni.active) {
+    interactionMode = "rotate";
+    canvas.classList.add("is-dragging");
+    return;
+  }
+
   interactionMode = "pending";
-  canvas.classList.add("is-pressing");
+  setDragFeedback("pressing");
   longPressTimer = window.setTimeout(() => {
     if (interactionMode !== "pending" || activePointerId !== event.pointerId) return;
-    interactionMode = "orbit";
-    canvas.classList.remove("is-pressing");
+    omni.syncPositionTarget(elapsed);
+    dragPlane.constant = -omni.root.position.z;
+    const pointerWorld = worldPositionAtScreen(event.clientX, event.clientY);
+    if (!pointerWorld) {
+      interactionMode = "cancelled";
+      setDragFeedback("idle");
+      return;
+    }
+    dragOffset.copy(omni.root.getWorldPosition(new THREE.Vector3())).sub(pointerWorld);
+    interactionMode = "drag";
+    setDragFeedback("dragging");
     canvas.classList.add("is-dragging");
   }, longPressDelay);
 }
@@ -939,20 +1100,35 @@ function onPointerMove(event: PointerEvent) {
   pointerMoved = Math.max(pointerMoved, currentPosition.distanceTo(pressStartPosition));
 
   if (interactionMode === "pending") {
-    lastPointerPosition.copy(currentPosition);
     if (pointerMoved > tapMovementLimit) {
       clearLongPress();
       interactionMode = "cancelled";
-      canvas.classList.remove("is-pressing");
+      setDragFeedback("idle");
     }
     return;
   }
 
-  if (interactionMode === "orbit") {
-    const movement = currentPosition.sub(lastPointerPosition);
+  if (interactionMode === "drag") {
+    const pointerWorld = worldPositionAtScreen(event.clientX, event.clientY);
+    if (!pointerWorld) return;
+    dragTargetPosition.copy(pointerWorld).add(dragOffset);
+    dragConstrainedPosition.copy(dragTargetPosition);
+    constrainDragPosition(dragConstrainedPosition);
+    omni.positionTarget.set(
+      dragConstrainedPosition.x,
+      dragConstrainedPosition.y - omni.getBobOffset(elapsed),
+      omni.positionTarget.z,
+    );
+    event.preventDefault();
+    return;
+  }
+
+  if (interactionMode === "rotate") {
+    const movement = currentPosition.clone().sub(lastPointerPosition);
     deviceRotationTarget.y += movement.x * 0.006;
-    deviceRotationTarget.x = THREE.MathUtils.clamp(deviceRotationTarget.x + movement.y * 0.006, -0.65, 0.65);
+    deviceRotationTarget.x = THREE.MathUtils.clamp(deviceRotationTarget.x + movement.y * 0.006, -Math.PI, Math.PI);
     lastPointerPosition.set(event.clientX, event.clientY);
+    event.preventDefault();
     return;
   }
 
@@ -967,27 +1143,46 @@ function onPointerMove(event: PointerEvent) {
   revealPortfolio();
 }
 
-function onPointerUp(event: PointerEvent) {
-  if (event.pointerId !== activePointerId) return;
+function finishPointerInteraction(cancelled = false, pointerId?: number) {
+  if (activePointerId === null || (pointerId !== undefined && pointerId !== activePointerId)) return;
+
+  const capturedPointerId = activePointerId;
   const completedMode = interactionMode;
-  const wasCancelled = event.type === "pointercancel";
+  const completedPressTarget = pressTarget;
   clearLongPress();
   activePointerId = null;
   interactionMode = "idle";
+  pressTarget = null;
   canvas.classList.remove("is-dragging", "is-pressing");
-  if (canvas.hasPointerCapture(event.pointerId)) canvas.releasePointerCapture(event.pointerId);
+  setDragFeedback("idle");
+  if (canvas.hasPointerCapture(capturedPointerId)) canvas.releasePointerCapture(capturedPointerId);
 
-  if (!wasCancelled && completedMode === "pending" && pointerMoved <= tapMovementLimit) {
-    const hit = raycastDevice(event)[0];
-    if (hit?.object === omni.centreHit) {
-      engageProject();
-    }
+  if (!cancelled && completedMode === "pending" && completedPressTarget === "centre" && pointerMoved <= tapMovementLimit) {
+    engageProject();
     return;
   }
 
   if (completedMode !== "dial") return;
   omni.dialTarget += omni.dialVelocity * 2.4;
   selectFromRotation(true, omni.dialVelocity <= 0 ? 1 : -1);
+}
+
+function onPointerUp(event: PointerEvent) {
+  finishPointerInteraction(event.type === "pointercancel", event.pointerId);
+}
+
+function onLostPointerCapture(event: PointerEvent) {
+  finishPointerInteraction(true, event.pointerId);
+}
+
+function cancelPointerInteraction() {
+  finishPointerInteraction(true);
+}
+
+function onWindowPointerOut(event: PointerEvent) {
+  if (event.relatedTarget === null && event.pointerId === activePointerId) {
+    finishPointerInteraction(true, event.pointerId);
+  }
 }
 
 function clearLongPress() {
@@ -1041,8 +1236,11 @@ canvas.addEventListener("pointerdown", onPointerDown);
 canvas.addEventListener("pointermove", onPointerMove);
 canvas.addEventListener("pointerup", onPointerUp);
 canvas.addEventListener("pointercancel", onPointerUp);
+canvas.addEventListener("lostpointercapture", onLostPointerCapture);
 sceneWrap.addEventListener("wheel", onWheel, { passive: false });
 window.addEventListener("resize", resize);
+window.addEventListener("blur", cancelPointerInteraction);
+window.addEventListener("pointerout", onWindowPointerOut);
 window.addEventListener("keydown", (event) => {
   if (boot && !boot.classList.contains("is-hidden")) return;
   if (event.key === "ArrowLeft") moveProject(-1);
@@ -1054,6 +1252,7 @@ window.addEventListener("keydown", (event) => {
   if (event.key === "Escape") returnToSelector();
 });
 document.addEventListener("visibilitychange", () => {
+  if (document.hidden) cancelPointerInteraction();
   if (document.hidden) cancelAnimationFrame(animationFrame);
   else {
     lastTime = performance.now();

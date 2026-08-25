@@ -307,6 +307,50 @@ main,
   cursor: grabbing;
 }
 
+.drag-feedback {
+  position: fixed;
+  z-index: 6;
+  top: max(76px, env(safe-area-inset-top));
+  left: 50%;
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  padding: 8px 12px;
+  border: 1px solid var(--line);
+  background: var(--surface);
+  color: var(--muted);
+  font-family: var(--display);
+  font-size: 0.58rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  opacity: 0;
+  pointer-events: none;
+  transform: translate(-50%, -6px);
+  transition: opacity 180ms, transform 180ms, border-color 180ms, color 180ms;
+}
+
+.drag-feedback__indicator {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--muted);
+}
+
+.scene-wrap.is-pressing .drag-feedback,
+.scene-wrap.is-dragging .drag-feedback {
+  opacity: 1;
+  transform: translate(-50%, 0);
+}
+
+.scene-wrap.is-dragging .drag-feedback {
+  border-color: var(--energy);
+  color: var(--energy);
+}
+
+.scene-wrap.is-dragging .drag-feedback__indicator {
+  background: var(--energy);
+}
+
 .fallback-device {
   position: absolute;
   top: 50%;

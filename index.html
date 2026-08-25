@@ -47,6 +47,10 @@
       <main>
         <div class="scene-wrap" id="scene-wrap" aria-label="Interactive project selector">
           <canvas id="scene" aria-hidden="true"></canvas>
+          <div class="drag-feedback" id="drag-feedback" aria-hidden="true">
+            <span class="drag-feedback__indicator"></span>
+            <span id="drag-feedback-label">Hold to reposition</span>
+          </div>
           <div class="fallback-device" id="fallback" hidden aria-hidden="true">
             <div class="fallback-device__ring"><span></span></div>
           </div>
@@ -76,7 +80,7 @@
 
         <div class="instruction" id="instruction">
           <span class="instruction__line"></span>
-          <p><strong>Rotate to explore</strong><span>Drag the ring, hold the centre to inspect, or use arrow keys</span></p>
+          <p><strong>Rotate to explore</strong><span>Drag the ring or housing for 360° view, hold the centre to reposition, or use arrow keys</span></p>
           <span class="instruction__line"></span>
         </div>
 
