@@ -1,3 +1,11 @@
+/**
+ * Holds the single AppState object threaded through the scene, interaction and
+ * animation modules. This app was previously one file where all of this lived
+ * as top-level `let` variables sharing a closure; splitting the logic into
+ * separate modules meant that mutable runtime state (camera, renderer,
+ * pointer/drag vectors, interaction mode, timers, etc.) had to be bundled into
+ * one object and passed by reference into the extracted functions instead.
+ */
 import * as THREE from "three";
 import type { EffectComposer } from "three/addons/postprocessing/EffectComposer.js";
 import type { UnrealBloomPass } from "three/addons/postprocessing/UnrealBloomPass.js";
@@ -11,6 +19,13 @@ export const projectStep = (Math.PI * 2) / projects.length;
 export type InteractionMode = "idle" | "pending" | "dial" | "rotate" | "drag" | "cancelled";
 export type PressTarget = "centre" | "housing" | null;
 
+/**
+ * The app's single shared mutable runtime state object. Everything here used
+ * to be a top-level `let` in main.ts; now scene/interaction/animation modules
+ * each receive an `AppState` instance by reference so they can read and mutate
+ * the same live Three.js objects, pointer/drag vectors and interaction flags
+ * without importing from one another.
+ */
 export class AppState {
   renderer!: THREE.WebGLRenderer;
   composer!: EffectComposer;
