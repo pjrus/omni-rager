@@ -54,7 +54,7 @@ async function startExperience() {
   state.omni.projectDisplay.visible = false;
   state.omni.setHourglassVisible(true);
   state.omni.core.position.z = 0.38;
-  state.omni.dial.position.z = 0.08;
+  state.omni.dial.position.z = 0.21;
   state.omni.root.scale.setScalar(compactDevice.matches ? 0.76 : 0.9);
   app.classList.add("is-active");
   systemStatus.textContent = "PROJECT LINKED";

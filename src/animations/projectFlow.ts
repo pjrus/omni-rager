@@ -124,7 +124,7 @@ export function engageProject(state: AppState, sounds: SoundSystem) {
     .to(omni.core.position, { z: 0.38, duration: 0.32, ease: "back.out(2.5)" }, 1.34)
     .to(omni.mechanism.scale, { x: 1.05, y: 1.05, duration: 0.3 }, 1.32)
     .to(omni.mechanism.scale, { x: 1, y: 1, duration: 0.18 }, 1.62)
-    .to(omni.dial.position, { z: 0.08, duration: 0.32 }, 1.46)
+    .to(omni.dial.position, { z: 0.21, duration: 0.32 }, 1.46)
     .to(omni.root.scale, { x: compactDevice.matches ? 0.76 : 0.9, y: compactDevice.matches ? 0.76 : 0.9, z: compactDevice.matches ? 0.76 : 0.9, duration: 0.55 }, 1.18)
     .to(omni.particleMaterial, { opacity: 0.82, size: 0.055, duration: 0.24 }, 1.06)
     .to(omni.particleMaterial, { opacity: 0.34, size: 0.025, duration: 0.5 }, 1.44);
