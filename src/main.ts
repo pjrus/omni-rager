@@ -28,6 +28,7 @@ import {
   onWheel,
   onWindowPointerOut,
 } from "./interactions/pointer";
+import { installOmniDebug } from "./debug/omniDebug";
 import { initialiseScene, render, resize } from "./scene/scene";
 import { AppState, compactDevice, reducedMotion } from "./state";
 import { engageProject, moveProject, returnToSelector } from "./animations/projectFlow";
@@ -105,3 +106,4 @@ reducedMotion.addEventListener("change", () => {
 
 updateProjectInterface(0);
 initialiseScene(state);
+installOmniDebug(state);
