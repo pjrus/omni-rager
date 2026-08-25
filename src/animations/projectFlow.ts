@@ -1,3 +1,7 @@
+// GSAP timeline sequences that drive the device's state transitions: engaging a project,
+// returning to the selector, switching between projects while engaged, and animating the
+// dial selection. These timelines are the core "transformation" choreography behind the
+// Omnitrix-inspired interaction — the product's signature moment.
 import { gsap } from "gsap";
 import { SoundSystem } from "../audio/SoundSystem";
 import { projects } from "../data/projects";
@@ -37,6 +41,11 @@ export function animateProjectSelection(state: AppState, sounds: SoundSystem, in
     .call(() => applyProjectSelection(state, sounds, index), [], 0.39);
 }
 
+/**
+ * Snaps the dial's continuous rotation target (`omni.dialTarget`, which accumulates freely
+ * as the user drags/flicks/scrolls) to the nearest discrete project index, wrapping around
+ * with modulo so the dial can spin past either end of the project list.
+ */
 export function selectFromRotation(state: AppState, sounds: SoundSystem, animate = false, direction = 1) {
   const omni = state.omni;
   const rawIndex = Math.round(-omni.dialTarget / projectStep);
@@ -68,6 +77,8 @@ export function engageProject(state: AppState, sounds: SoundSystem) {
   systemStatus.textContent = "TRANSFORMATION ACTIVE";
   sounds.play("transform");
 
+  // Respect prefers-reduced-motion: jump straight to the engaged end state instead of
+  // running the GSAP timeline below.
   if (reducedMotion.matches) {
     omni.projectDisplay.visible = false;
     omni.setHourglassVisible(true);
@@ -128,6 +139,8 @@ export function switchActiveProject(state: AppState, sounds: SoundSystem, direct
   systemStatus.textContent = "RECALIBRATING";
   sounds.play("power-down");
 
+  // Respect prefers-reduced-motion: apply the switch immediately instead of running the
+  // GSAP timeline below.
   const applySwitch = () => {
     omni.dialTarget -= direction * projectStep;
     selectFromRotation(state, sounds);
@@ -169,6 +182,8 @@ export function returnToSelector(state: AppState, sounds: SoundSystem) {
   omni.projectDisplay.visible = reducedMotion.matches;
   omni.diamondDial.rotation.z = reducedMotion.matches ? 0 : -Math.PI * 2;
 
+  // Respect prefers-reduced-motion: skip the GSAP timeline below and jump straight to the
+  // disengaged end state.
   const finish = () => {
     omni.active = false;
     omni.busy = false;
