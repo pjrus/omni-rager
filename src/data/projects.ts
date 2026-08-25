@@ -1,3 +1,12 @@
+/**
+ * Static project catalogue rendered by the portfolio scene, plus the asset-URL
+ * helper other modules (e.g. SoundSystem) also use to resolve files under Vite's
+ * configured base path.
+ *
+ * NOTE: the project entries below (name/description/link) are placeholder,
+ * illustrative content — per PRODUCT.md, no real case studies were supplied and
+ * these must be replaced with real projects before public launch.
+ */
 export const assetUrl = (path: string) => `${import.meta.env.BASE_URL}${path}`;
 
 export type Project = {
