@@ -2,27 +2,6 @@ import * as THREE from "three";
 import { cylinder } from "../geometry";
 import type { DeviceMaterials } from "../materials";
 
-export type CoreParts = {
-  cradle: THREE.Mesh;
-  energyFace: THREE.Mesh;
-  leftShutter: THREE.Group;
-  rightShutter: THREE.Group;
-  lens: THREE.Mesh;
-  silverBezel: THREE.Mesh;
-};
-
-function buildCradle(materials: DeviceMaterials) {
-  const cradle = cylinder(1.4, 0.2, materials.darkEnergy, 64);
-  cradle.position.z = 0.94;
-  return cradle;
-}
-
-function buildEnergyFace(materials: DeviceMaterials) {
-  const energyFace = cylinder(1.3, 0.1, materials.energy, 64);
-  energyFace.position.z = 1.08;
-  return energyFace;
-}
-
 function createShutterShape(radius: number, angle: number, pointX: number) {
   const shape = new THREE.Shape();
   const upperAngle = Math.PI - angle;
@@ -91,30 +70,29 @@ function buildLens() {
   return lens;
 }
 
-/** The raised silver lip keeps the shutters physically inside the selector pod. */
-function buildSilverBezel(materials: DeviceMaterials) {
-  const silverBezel = new THREE.Mesh(new THREE.TorusGeometry(1.34, 0.16, 14, 80), materials.silver);
-  silverBezel.position.z = 1.1;
-  return silverBezel;
-}
-
 /**
  * The centre core: glowing energy face, the two shutters that part to reveal it,
  * lens, and silver bezel. Adds all parts to `target` (the `core` group) and returns
  * the refs `OmniDevice` needs for `setHourglassVisible()`.
  */
-export function buildCore(target: THREE.Group, materials: DeviceMaterials): CoreParts {
+export function buildCore(target: THREE.Group, materials: DeviceMaterials) {
   const backingGeometry = extrudeShutter(createShutterShape(1.245, Math.PI / 4, -0.12), 0.09);
   const faceGeometry = extrudeShutter(createShutterShape(1.16, Math.PI / 4.15, -0.25), 0.075);
 
-  const cradle = buildCradle(materials);
-  const energyFace = buildEnergyFace(materials);
+  const cradle = cylinder(1.4, 0.2, materials.darkEnergy, 64);
+  cradle.position.z = 0.94;
+
+  const energyFace = cylinder(1.3, 0.1, materials.energy, 64);
+  energyFace.position.z = 1.08;
+
   const leftShutter = buildShutter(materials, "left", backingGeometry, faceGeometry);
   const rightShutter = buildShutter(materials, "right", backingGeometry, faceGeometry);
-  const lens = buildLens();
-  const silverBezel = buildSilverBezel(materials);
 
-  target.add(cradle, energyFace, leftShutter, rightShutter, lens, silverBezel);
+  // Raised silver lip, keeping the shutters physically inside the selector pod.
+  const silverBezel = new THREE.Mesh(new THREE.TorusGeometry(1.34, 0.16, 14, 80), materials.silver);
+  silverBezel.position.z = 1.1;
 
-  return { cradle, energyFace, leftShutter, rightShutter, lens, silverBezel };
+  target.add(cradle, energyFace, leftShutter, rightShutter, buildLens(), silverBezel);
+
+  return { energyFace, leftShutter, rightShutter };
 }

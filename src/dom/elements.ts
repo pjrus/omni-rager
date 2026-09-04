@@ -1,8 +1,4 @@
-/**
- * Typed DOM element lookups shared across modules. Centralising these
- * querySelector calls (and their non-null assertions) here avoids repeating
- * lookups and null-checks in every module that needs to touch the page.
- */
+/** Typed DOM element lookups shared across modules. */
 export const app = document.querySelector<HTMLElement>("#app")!;
 export const canvas = document.querySelector<HTMLCanvasElement>("#scene")!;
 export const sceneWrap = document.querySelector<HTMLElement>("#scene-wrap")!;

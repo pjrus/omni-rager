@@ -1,6 +1,4 @@
-// DOM-facing updates for the project info panel and status/feedback text. Kept separate
-// from the Three.js/animation code so plain UI text updates aren't tangled with
-// mesh/GSAP logic in scene.ts and animations/projectFlow.ts.
+// DOM-facing updates for the project info panel and status/feedback text.
 import { Project, projects } from "../data/projects";
 import {
   app,

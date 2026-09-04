@@ -7,7 +7,14 @@ import { RenderPass } from "three/addons/postprocessing/RenderPass.js";
 import { UnrealBloomPass } from "three/addons/postprocessing/UnrealBloomPass.js";
 import { canvas, fallback, sceneWrap, systemStatus } from "../dom/elements";
 import { OmniDevice } from "../device/OmniDevice";
-import { AppState, compactDevice, reducedMotion } from "../state";
+import {
+  AppState,
+  cameraDistance,
+  compactDevice,
+  deviceScale,
+  maxPixelRatio,
+  reducedMotion,
+} from "../state";
 
 export function initialiseScene(state: AppState) {
   try {
@@ -16,7 +23,7 @@ export function initialiseScene(state: AppState) {
     state.scene.fog = new THREE.FogExp2(0x050806, 0.035);
 
     state.camera = new THREE.PerspectiveCamera(34, window.innerWidth / window.innerHeight, 0.1, 60);
-    state.camera.position.set(0, 0, compactDevice.matches ? 11.2 : 10.5);
+    state.camera.position.set(0, 0, cameraDistance());
 
     state.renderer = new THREE.WebGLRenderer({
       canvas,
@@ -28,9 +35,7 @@ export function initialiseScene(state: AppState) {
     state.renderer.toneMappingExposure = 1.05;
     state.renderer.shadowMap.enabled = !compactDevice.matches;
     state.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-    state.renderer.setPixelRatio(
-      Math.min(window.devicePixelRatio, compactDevice.matches ? 1.35 : 1.8),
-    );
+    state.renderer.setPixelRatio(maxPixelRatio());
     state.renderer.setSize(window.innerWidth, window.innerHeight, false);
 
     const ambient = new THREE.AmbientLight(0x667066, 0.7);
@@ -88,17 +93,13 @@ export function resize(state: AppState) {
   const width = sceneWrap.clientWidth;
   const height = sceneWrap.clientHeight;
   state.camera.aspect = width / height;
-  state.camera.position.z = compactDevice.matches ? 11.2 : 10.5;
+  state.camera.position.z = cameraDistance();
   state.camera.updateProjectionMatrix();
-  state.renderer.setPixelRatio(
-    Math.min(window.devicePixelRatio, compactDevice.matches ? 1.35 : 1.8),
-  );
+  state.renderer.setPixelRatio(maxPixelRatio());
   state.renderer.setSize(width, height, false);
   state.composer.setSize(width, height);
   state.bloom.setSize(width, height);
-  const selectorScale = compactDevice.matches ? 0.7 : 0.82;
-  const engagedScale = compactDevice.matches ? 0.76 : 0.9;
-  state.omni.root.scale.setScalar(state.omni.active ? engagedScale : selectorScale);
+  state.omni.root.scale.setScalar(deviceScale(state.omni.active));
   constrainOmniTargetToScene(state);
 }
 
@@ -113,10 +114,11 @@ export function screenAngle(event: PointerEvent, state: AppState) {
   return Math.atan2(event.clientY - y, event.clientX - x);
 }
 
-export function updatePointer(event: PointerEvent, state: AppState) {
+/** Writes the normalised device coordinates of a screen point into `state.pointer`. */
+function setPointerFromScreen(clientX: number, clientY: number, state: AppState) {
   const bounds = canvas.getBoundingClientRect();
-  state.pointer.x = ((event.clientX - bounds.left) / bounds.width) * 2 - 1;
-  state.pointer.y = -((event.clientY - bounds.top) / bounds.height) * 2 + 1;
+  state.pointer.x = ((clientX - bounds.left) / bounds.width) * 2 - 1;
+  state.pointer.y = -((clientY - bounds.top) / bounds.height) * 2 + 1;
 }
 
 export function projectToScreen(position: THREE.Vector3, state: AppState) {
@@ -130,9 +132,7 @@ export function projectToScreen(position: THREE.Vector3, state: AppState) {
 
 /** Casts a ray from a screen point through the camera and intersects it with the drag plane, giving the world-space point currently under the pointer. */
 export function worldPositionAtScreen(clientX: number, clientY: number, state: AppState) {
-  const bounds = canvas.getBoundingClientRect();
-  state.pointer.x = ((clientX - bounds.left) / bounds.width) * 2 - 1;
-  state.pointer.y = -((clientY - bounds.top) / bounds.height) * 2 + 1;
+  setPointerFromScreen(clientX, clientY, state);
   state.raycaster.setFromCamera(state.pointer, state.camera);
   return state.raycaster.ray.intersectPlane(state.dragPlane, state.dragWorldPosition);
 }
@@ -220,7 +220,7 @@ export function constrainOmniTargetToScene(state: AppState) {
 }
 
 export function raycastDevice(event: PointerEvent, state: AppState) {
-  updatePointer(event, state);
+  setPointerFromScreen(event.clientX, event.clientY, state);
   state.raycaster.setFromCamera(state.pointer, state.camera);
   return state.raycaster.intersectObjects(
     [state.omni.centreHit, state.omni.dialHit, state.omni.dragHit],

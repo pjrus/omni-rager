@@ -1,11 +1,3 @@
-/**
- * Holds the single AppState object threaded through the scene, interaction and
- * animation modules. This app was previously one file where all of this lived
- * as top-level `let` variables sharing a closure; splitting the logic into
- * separate modules meant that mutable runtime state (camera, renderer,
- * pointer/drag vectors, interaction mode, timers, etc.) had to be bundled into
- * one object and passed by reference into the extracted functions instead.
- */
 import * as THREE from "three";
 import type { EffectComposer } from "three/addons/postprocessing/EffectComposer.js";
 import type { UnrealBloomPass } from "three/addons/postprocessing/UnrealBloomPass.js";
@@ -16,15 +8,23 @@ export const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)
 export const compactDevice = window.matchMedia("(max-width: 700px)");
 export const projectStep = (Math.PI * 2) / projects.length;
 
+/** The device's root scale, which shrinks on compact viewports and grows once engaged. */
+export const deviceScale = (active: boolean) =>
+  compactDevice.matches ? (active ? 0.76 : 0.7) : active ? 0.9 : 0.82;
+
+/** Camera distance and max pixel ratio, both eased back on compact viewports. */
+export const cameraDistance = () => (compactDevice.matches ? 11.2 : 10.5);
+export const maxPixelRatio = () =>
+  Math.min(window.devicePixelRatio, compactDevice.matches ? 1.35 : 1.8);
+
 export type InteractionMode = "idle" | "pending" | "dial" | "rotate" | "drag" | "cancelled";
 export type PressTarget = "centre" | "housing" | null;
 
 /**
- * The app's single shared mutable runtime state object. Everything here used
- * to be a top-level `let` in main.ts; now scene/interaction/animation modules
- * each receive an `AppState` instance by reference so they can read and mutate
- * the same live Three.js objects, pointer/drag vectors and interaction flags
- * without importing from one another.
+ * The app's single shared mutable runtime state object. Scene, interaction and
+ * animation modules each receive an `AppState` by reference so they read and
+ * mutate the same live Three.js objects, pointer/drag vectors and interaction
+ * flags without importing from one another.
  */
 export class AppState {
   renderer!: THREE.WebGLRenderer;

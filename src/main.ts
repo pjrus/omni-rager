@@ -1,8 +1,6 @@
 /**
- * Orchestration entry point. Constructs the shared AppState and SoundSystem,
- * wires DOM event listeners to the interaction/animation/scene functions
- * extracted from the original single-file implementation, and kicks off the
- * Three.js scene.
+ * Orchestration entry point: constructs the shared AppState and SoundSystem, wires
+ * DOM event listeners to the interaction/animation/scene modules, and starts the scene.
  */
 import "./style.css";
 import { SoundSystem } from "./audio/SoundSystem";
@@ -28,9 +26,8 @@ import {
   onWheel,
   onWindowPointerOut,
 } from "./interactions/pointer";
-import { installOmniDebug } from "./debug/omniDebug";
 import { initialiseScene, render, resize } from "./scene/scene";
-import { AppState, compactDevice, reducedMotion } from "./state";
+import { AppState, deviceScale, reducedMotion } from "./state";
 import { engageProject, moveProject, returnToSelector } from "./animations/projectFlow";
 import { revealPortfolio, updateProjectInterface } from "./ui/interface";
 
@@ -55,7 +52,7 @@ async function startExperience() {
   state.omni.setHourglassVisible(true);
   state.omni.core.position.z = 0.38;
   state.omni.dial.position.z = 0.21;
-  state.omni.root.scale.setScalar(compactDevice.matches ? 0.76 : 0.9);
+  state.omni.root.scale.setScalar(deviceScale(true));
   app.classList.add("is-active");
   systemStatus.textContent = "PROJECT LINKED";
   bootButton.disabled = false;
@@ -108,4 +105,3 @@ reducedMotion.addEventListener("change", () => {
 
 updateProjectInterface(0);
 initialiseScene(state);
-installOmniDebug(state);

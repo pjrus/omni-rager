@@ -1,10 +1,9 @@
 import * as THREE from "three";
 
 /**
- * Creates a fresh set of the device's shared materials. Called once per
- * `OmniDevice` instance (the app only ever builds one) and threaded through
- * to every part builder under `./parts/`, so all parts referencing e.g.
- * `materials.blackMetal` share the same material instance.
+ * The device's shared materials, built once per `OmniDevice` and threaded through
+ * every part builder under `./parts/` so parts referencing e.g. `materials.blackMetal`
+ * share one material instance.
  */
 export function createMaterials() {
   return {

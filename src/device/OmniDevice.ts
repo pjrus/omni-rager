@@ -1,6 +1,6 @@
 import * as THREE from "three";
 import { projects } from "../data/projects";
-import { compactDevice, reducedMotion } from "../state";
+import { compactDevice, deviceScale, reducedMotion } from "../state";
 import { createMaterials } from "./materials";
 import { buildCase } from "./parts/case";
 import { buildCore } from "./parts/core";
@@ -13,15 +13,12 @@ import { buildProjectDisplay } from "./parts/projectDisplay";
 
 /**
  * Procedurally builds the device's entire Three.js scene graph (housing, case,
- * mechanism, dial, core/shutters, project display, and ambient particles) out of
- * primitive geometry rather than a loaded model, and owns the per-frame
- * animation/interaction state — dialTarget, active, busy, positionTarget, etc.
- * That state is read and mutated by other modules (interactions/pointer.ts,
- * animations/projectFlow.ts, scene/scene.ts) rather than by this class itself,
- * so OmniDevice acts as the shared model + view for the device.
- *
- * The geometry itself is assembled from per-part builder functions grouped by
- * body region under `./parts/` — see docs/omni-device-component-split.md.
+ * mechanism, dial, core/shutters, project display, and ambient particles) from
+ * primitive geometry rather than a loaded model, and owns the per-frame animation
+ * state — dialTarget, active, busy, positionTarget. That state is read and mutated
+ * by interactions/pointer.ts, animations/projectFlow.ts and scene/scene.ts, so
+ * OmniDevice acts as the shared model + view for the device. Geometry is assembled
+ * from per-body-region builders under `./parts/`.
  */
 export class OmniDevice {
   readonly root = new THREE.Group();
@@ -52,7 +49,7 @@ export class OmniDevice {
 
   constructor() {
     this.root.rotation.set(-0.06, 0.12, 0);
-    this.root.scale.setScalar(compactDevice.matches ? 0.7 : 0.82);
+    this.root.scale.setScalar(deviceScale(false));
 
     const materials = createMaterials();
     this.energyMaterial = materials.energy;

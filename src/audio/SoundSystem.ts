@@ -45,11 +45,11 @@ export class SoundSystem {
   }
 
   /** Plays a preloaded named clip (see `levels` for the available names). */
-  play(name: string, restart = true) {
+  play(name: string) {
     if (!this.ready || this.muted) return;
     const sound = this.sounds[name];
     if (!sound) return;
-    if (restart) sound.currentTime = 0;
+    sound.currentTime = 0;
     void sound.play().catch(() => undefined);
   }
 

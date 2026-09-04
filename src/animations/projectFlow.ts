@@ -6,7 +6,7 @@ import { gsap } from "gsap";
 import { SoundSystem } from "../audio/SoundSystem";
 import { projects } from "../data/projects";
 import { app, systemStatus } from "../dom/elements";
-import { AppState, compactDevice, projectStep, reducedMotion } from "../state";
+import { AppState, deviceScale, projectStep, reducedMotion } from "../state";
 import { revealPortfolio, setControlsDisabled, updateProjectInterface } from "../ui/interface";
 
 export function applyProjectSelection(state: AppState, sounds: SoundSystem, index: number) {
@@ -145,12 +145,7 @@ export function engageProject(state: AppState, sounds: SoundSystem) {
     .to(omni.dial.position, { z: 0.21, duration: 0.32 }, 1.46)
     .to(
       omni.root.scale,
-      {
-        x: compactDevice.matches ? 0.76 : 0.9,
-        y: compactDevice.matches ? 0.76 : 0.9,
-        z: compactDevice.matches ? 0.76 : 0.9,
-        duration: 0.55,
-      },
+      { x: deviceScale(true), y: deviceScale(true), z: deviceScale(true), duration: 0.55 },
       1.18,
     )
     .to(omni.particleMaterial, { opacity: 0.82, size: 0.055, duration: 0.24 }, 1.06)
@@ -240,9 +235,9 @@ export function returnToSelector(state: AppState, sounds: SoundSystem) {
     .to(
       omni.root.scale,
       {
-        x: compactDevice.matches ? 0.7 : 0.82,
-        y: compactDevice.matches ? 0.7 : 0.82,
-        z: compactDevice.matches ? 0.7 : 0.82,
+        x: deviceScale(false),
+        y: deviceScale(false),
+        z: deviceScale(false),
         duration: 0.38,
         ease: "expo.out",
       },

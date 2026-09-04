@@ -1,12 +1,7 @@
 import * as THREE from "three";
 
-export type ParticleField = {
-  points: THREE.Points;
-  material: THREE.PointsMaterial;
-};
-
 /** The ambient particle field drifting around the device (not part of the physical model). */
-export function buildParticles(compact: boolean): ParticleField {
+export function buildParticles(compact: boolean) {
   const count = compact ? 90 : 180;
   const positions = new Float32Array(count * 3);
   for (let index = 0; index < count; index += 1) {
